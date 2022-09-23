@@ -11,6 +11,9 @@ void UARTSendSTR(char *string);
 // Определение переменных
 uint32_t spd = 0;
 uint8_t data = 0;
+uint32_t res_mas[10] = {0};
+uint32_t i = 0;
+uint32_t a = 0;
 
 
 
@@ -98,8 +101,11 @@ void delay (uint32_t ticks)
 /*Обработчик прерывания по линии EXTI15_10*/
 void USART2_IRQHandler (void)
 {
+        data = 0x00;
         data = UARTResive();
-        if (data !=0){spd=data;}
+        if (data !=0){res_mas[i]=data;}
+        i++;
+        if (i==10) {i=0;}
 }
 
 void HardFault_Handler (void)

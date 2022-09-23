@@ -2,7 +2,6 @@
 #include "stdint.h"
 #include "stm32f101xb.h"
 
-
 /* Регистры контроллера прерываний*/
 typedef struct
 {
@@ -39,3 +38,4 @@ typedef struct
 #define USART2_BASE     0x40004400UL
 
 #define USART2 ((USART2_Type*)USART2_BASE)
+
