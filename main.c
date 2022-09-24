@@ -6,25 +6,10 @@
 void delay (uint32_t ticks);
 void UART2cnf(void);
 void UARTSend(int8_t c);
-uint8_t UARTResive(void);
+
 void UARTSendSTR(char *string);
 // Определение переменных
 uint32_t spd = 0;
-uint8_t data = 0;
-uint32_t res_mas[10] = {0};
-uint32_t i = 0;
-uint32_t a = 0;
-
-
-
-
-
-
-
-
-
-
-
 
 int main(void)
 {
@@ -38,6 +23,7 @@ int main(void)
     {
 //        uint8_t data = UARTResive();
 //        if (data !=0){spd=data;}
+        UARTSend(0x01);
         delay(100000);
     }
     
@@ -81,12 +67,7 @@ void UARTSendSTR(char *string)
 {
     while (*string) UARTSend (*string++);
 }
-uint8_t UARTResive(void)
-{
-    uint8_t Resive;
-	Resive = USART2->DR;
-	return Resive;
-}
+
 
 
 void delay (uint32_t ticks)
@@ -97,16 +78,7 @@ void delay (uint32_t ticks)
 }
 
 
-/*Обработчик прерывания по линии EXTI15_10*/
-/*Обработчик прерывания по линии EXTI15_10*/
-void USART2_IRQHandler (void)
-{
-        data = 0x00;
-        data = UARTResive();
-        if (data !=0){res_mas[i]=data;}
-        i++;
-        if (i==10) {i=0;}
-}
+
 
 void HardFault_Handler (void)
 {

@@ -1,7 +1,10 @@
 
 #include "stdint.h"
 #include "stm32f101xb.h"
-
+uint8_t data = 0;
+uint32_t res_mas[10] = {0};
+uint32_t i = 0;
+uint8_t UARTResive(void);
 /* Регистры контроллера прерываний*/
 typedef struct
 {
@@ -39,3 +42,19 @@ typedef struct
 
 #define USART2 ((USART2_Type*)USART2_BASE)
 
+uint8_t UARTResive(void)
+{
+    uint8_t Resive;
+	Resive = USART2->DR;
+	return Resive;
+}
+/*Обработчик прерывания по линии EXTI15_10*/
+/*Обработчик прерывания по линии EXTI15_10*/
+void USART2_IRQHandler (void)
+{
+        data = 0x00;
+        data = UARTResive();
+        if (data !=0){res_mas[i]=data;}
+        i++;
+        if (i==10) {i=0;}
+}
