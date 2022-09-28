@@ -14,7 +14,8 @@ int main(void)
 {
 
 	/*Инициализация UART*/
-	UARTcnf(2,14400);
+    /*UARTcnf(Номер UART(1-2), Baudrate, Прерывания(0-1))*/
+	UARTcnf(2,14400,1);
     
     while(1)
     {

@@ -5,8 +5,8 @@
 uint8_t data = 0;
 uint32_t res_mas[10] = {0};
 uint32_t i = 0;
-uint8_t UARTResive(void);
-void UARTcnf(uint8_t usartnum, uint32_t brate);
+uint8_t UARTResive(uint8_t usartnum);
+void UARTcnf(uint8_t usartnum, uint32_t brate, uint8_t prer);
 
 
 /* Регистры контроллера прерываний*/
@@ -61,7 +61,7 @@ typedef struct
 
 #define USART1 ((USART1_Type*)USART1_BASE)
 
-void UARTcnf(uint8_t usartnum, uint32_t brate)
+void UARTcnf(uint8_t usartnum, uint32_t brate, uint8_t prer)
 {
     //Расчет baudrate
     float div = ((8000000*100)/(brate*16));
@@ -98,9 +98,12 @@ void UARTcnf(uint8_t usartnum, uint32_t brate)
         
         USART2->CR1 |= (1<<2);
         USART2->CR1 |= (1<<3);
-        /* Разрешение прерываний */
-        NVIC->ISER[1] = (uint32_t)(1UL << (((uint32_t)USART2_IRQn ) & 0x1FUL));
-        USART2->CR1 |= (1<<5); /*Прерывание при приеме данных*/
+        if (prer==1)
+            {
+            /* Разрешение прерываний */
+            NVIC->ISER[1] = (uint32_t)(1UL << (((uint32_t)USART2_IRQn ) & 0x1FUL));
+            USART2->CR1 |= (1<<5); /*Прерывание при приеме данных*/
+            }
         break;
         case 0x01:
         RCC->APB2ENR |= (1<<14);
@@ -119,29 +122,40 @@ void UARTcnf(uint8_t usartnum, uint32_t brate)
         USART1->BRR |=frac1;
         USART1->BRR |=(mant1<<4);
         
-        USART1->CR1 |= (1<<9);
-        USART1->CR1 |= (1<<10);
-        /* Разрешение прерываний */
-        NVIC->ISER[1] = (uint32_t)(1UL << (((uint32_t)USART1_IRQn ) & 0x1FUL));
-        USART1->CR1 |= (1<<5); /*Прерывание при приеме данных*/
+        USART1->CR1 |= (1<<2);
+        USART1->CR1 |= (1<<3);
+        if (prer==1)
+        {
+            /* Разрешение прерываний */
+            NVIC->ISER[1] = (uint32_t)(1UL << (((uint32_t)USART1_IRQn ) & 0x1FUL));
+            USART1->CR1 |= (1<<5); /*Прерывание при приеме данных*/
+        }
         break;
         default:
         break;
     }
 }
 
-uint8_t UARTResive(void)
+uint8_t UARTResive(uint8_t usartnum)
 {
     uint8_t Resive;
-	Resive = USART2->DR;
+    if (usartnum==1){Resive = USART1->DR;}
+    if (usartnum==2){Resive = USART2->DR;}
 	return Resive;
 }
-/*Обработчик прерывания по линии EXTI15_10*/
-/*Обработчик прерывания по линии EXTI15_10*/
+//Обработчик прерываний USART
 void USART2_IRQHandler (void)
 {
         data = 0x00;
-        data = UARTResive();
+        data = UARTResive(2);
+        if (data !=0){res_mas[i]=data;}
+        i++;
+        if (i==10) {i=0;}
+}
+void USART1_IRQHandler (void)
+{
+        data = 0x00;
+        data = UARTResive(1);
         if (data !=0){res_mas[i]=data;}
         i++;
         if (i==10) {i=0;}
