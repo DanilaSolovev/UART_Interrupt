@@ -7,6 +7,8 @@ uint32_t res_mas[10] = {0};
 uint32_t i = 0;
 uint8_t UARTResive(uint8_t usartnum);
 void UARTcnf(uint8_t usartnum, uint32_t brate, uint8_t prer);
+void UARTSend(int8_t c);
+void UARTSendSTR(char *string);
 
 
 /* Регистры контроллера прерываний*/
@@ -60,7 +62,7 @@ typedef struct
 #define USART1_BASE     0x40013800UL
 
 #define USART1 ((USART1_Type*)USART1_BASE)
-
+//Инициализация USART
 void UARTcnf(uint8_t usartnum, uint32_t brate, uint8_t prer)
 {
     //Расчет baudrate
@@ -135,13 +137,42 @@ void UARTcnf(uint8_t usartnum, uint32_t brate, uint8_t prer)
         break;
     }
 }
-
+//Прием данных по USART
 uint8_t UARTResive(uint8_t usartnum)
 {
-    uint8_t Resive;
-    if (usartnum==1){Resive = USART1->DR;}
-    if (usartnum==2){Resive = USART2->DR;}
+    uint8_t Resive=0;
+    if (usartnum==1)
+    {
+        while((USART1->SR & (1<<5))!=0x00) 
+        {
+        Resive = USART1->DR;
+        res_mas[i]=Resive;
+        i++;
+        if (i==10) {break;}
+        }
+    }
+    if (usartnum==2)
+    {
+        while((USART2->SR & (1<<5))!=0x00) 
+        {
+        Resive = USART2->DR;
+        res_mas[i]=Resive;
+        i++;
+        if (i==10) {break;}
+        }
+    }
 	return Resive;
+}
+//Отправка символа по USART
+void UARTSend(int8_t c)
+{
+    USART2->DR = c;
+	while (!(USART2->SR & (1<<6)));
+}
+//Отправка строки по USART
+void UARTSendSTR(char *string)
+{
+    while (*string) UARTSend (*string++);
 }
 //Обработчик прерываний USART
 void USART2_IRQHandler (void)
