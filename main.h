@@ -5,10 +5,10 @@
 uint8_t data = 0;
 uint32_t res_mas[10] = {0};
 uint32_t i = 0;
-uint8_t UARTResive(uint8_t usartnum);
+uint8_t UARTResive(uint8_t usartnum, uint32_t n);
 void UARTcnf(uint8_t usartnum, uint32_t brate, uint8_t prer);
 void UARTSend(int8_t c);
-void UARTSendSTR(char *string);
+void UARTSendMAS(uint8_t usartnum, uint32_t n);
 
 
 /* Регистры контроллера прерываний*/
@@ -83,7 +83,7 @@ void UARTcnf(uint8_t usartnum, uint32_t brate, uint8_t prer)
         case 0x02:
         RCC->APB1ENR |= (1<<17);
         GPIOA->CRL =0;
-        GPIOA->CRL &= (3<<8);
+        GPIOA->CRL |= (3<<8);
         GPIOA->CRL |= (2<<10);
         
         GPIOA->CRL &= ~(3<<12);
@@ -110,7 +110,7 @@ void UARTcnf(uint8_t usartnum, uint32_t brate, uint8_t prer)
         case 0x01:
         RCC->APB2ENR |= (1<<14);
         GPIOA->CRH = 0;
-        GPIOA->CRH &= (3<<4);
+        GPIOA->CRH |= (3<<4);
         GPIOA->CRH |= (2<<6);
         
         GPIOA->CRH &= ~(3<<8);
@@ -138,27 +138,38 @@ void UARTcnf(uint8_t usartnum, uint32_t brate, uint8_t prer)
     }
 }
 //Прием данных по USART
-uint8_t UARTResive(uint8_t usartnum)
+uint8_t UARTResive(uint8_t usartnum, uint32_t n)
 {
     uint8_t Resive=0;
+    volatile uint32_t a = 0;
+    i = 0;
+    memset(res_mas,0,sizeof(res_mas));
     if (usartnum==1)
     {
-        while((USART1->SR & (1<<5))!=0x00) 
+        while(a<1000000 && i!=n)
+//        while(i!=n)
         {
-        Resive = USART1->DR;
-        res_mas[i]=Resive;
-        i++;
-        if (i==10) {break;}
+            if (((USART1->SR)& (1<<5))!= 0x00)
+            {
+                Resive = USART1->DR;
+                res_mas[i]=Resive;
+                i++;
+            }
+        a++;
         }
     }
     if (usartnum==2)
     {
-        while((USART2->SR & (1<<5))!=0x00) 
+        while(a<1000000 && i!=n)
+//        while(i!=n)
         {
-        Resive = USART2->DR;
-        res_mas[i]=Resive;
-        i++;
-        if (i==10) {break;}
+            if (((USART2->SR)& (1<<5))!= 0x00)
+            {
+                Resive = USART2->DR;
+                res_mas[i]=Resive;
+                i++;
+            }
+        a++;
         }
     }
 	return Resive;
@@ -170,15 +181,20 @@ void UARTSend(int8_t c)
 	while (!(USART2->SR & (1<<6)));
 }
 //Отправка строки по USART
-void UARTSendSTR(char *string)
+void UARTSendMAS(uint8_t usartnum, uint32_t n)
 {
-    while (*string) UARTSend (*string++);
+    i = 0;
+    while (i!=n)
+    {
+        UARTSend(res_mas[i]);
+        i++;
+    }
 }
 //Обработчик прерываний USART
 void USART2_IRQHandler (void)
 {
         data = 0x00;
-        data = UARTResive(2);
+        data = UARTResive(2,5);
         if (data !=0){res_mas[i]=data;}
         i++;
         if (i==10) {i=0;}
@@ -186,7 +202,7 @@ void USART2_IRQHandler (void)
 void USART1_IRQHandler (void)
 {
         data = 0x00;
-        data = UARTResive(1);
+        data = UARTResive(1,5);
         if (data !=0){res_mas[i]=data;}
         i++;
         if (i==10) {i=0;}
