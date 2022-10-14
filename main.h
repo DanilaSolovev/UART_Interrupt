@@ -3,7 +3,7 @@
 #include "stm32f101xb.h"
 #include "math.h"
 uint8_t data = 0;
-uint32_t res_mas[10] = {0};
+uint8_t res_mas[10] = {0};
 uint32_t i = 0;
 uint8_t UARTResive(uint8_t usartnum, uint32_t n);
 void UARTcnf(uint8_t usartnum, uint32_t brate, uint8_t prer);
@@ -54,6 +54,50 @@ typedef struct
     uint32_t CR3;
     uint32_t GTPR;
 }USART1_Type;
+
+typedef struct
+{
+  uint16_t CR1;
+  uint16_t  RESERVED0;
+  uint16_t CR2;
+  uint16_t  RESERVED1;
+  uint16_t SMCR;
+  uint16_t  RESERVED2;
+  uint16_t DIER;
+  uint16_t  RESERVED3;
+  uint16_t SR;
+  uint16_t  RESERVED4;
+  uint16_t EGR;
+  uint16_t  RESERVED5;
+  uint16_t CCMR1;
+  uint16_t  RESERVED6;
+  uint16_t CCMR2;
+  uint16_t  RESERVED7;
+  uint16_t CCER;
+  uint16_t  RESERVED8;
+  uint16_t CNT;
+  uint16_t  RESERVED9;
+  uint16_t PSC;
+  uint16_t  RESERVED10;
+  uint16_t ARR;
+  uint16_t  RESERVED11;
+  uint16_t RCR;
+  uint16_t  RESERVED12;
+  uint16_t CCR1;
+  uint16_t  RESERVED13;
+  uint16_t CCR2;
+  uint16_t  RESERVED14;
+  uint16_t CCR3;
+  uint16_t  RESERVED15;
+  uint16_t CCR4;
+  uint16_t  RESERVED16;
+  uint16_t BDTR;
+  uint16_t  RESERVED17;
+  uint16_t DCR;
+  uint16_t  RESERVED18;
+  uint16_t DMAR;
+  uint16_t  RESERVED19;
+} TIM1_TypeDef;
 
 #define USART2_BASE     0x40004400UL
 
@@ -194,7 +238,7 @@ void UARTSendMAS(uint8_t usartnum, uint32_t n)
 void USART2_IRQHandler (void)
 {
         data = 0x00;
-        data = UARTResive(2,5);
+        data = UARTResive(2,10);
         if (data !=0){res_mas[i]=data;}
         i++;
         if (i==10) {i=0;}

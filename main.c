@@ -17,12 +17,12 @@ int main(void)
     
     while(1)
     {
-       uint8_t data = UARTResive(2,5);
+       uint8_t data = UARTResive(2,10);
 //       spd = res_mas[0]+res_mas[1]+res_mas[2];
         
         
         
-       UARTSendMAS(2,5);
+       UARTSendMAS(2,10);
        //delay(100000);
     }
     
