@@ -99,6 +99,10 @@ typedef struct
   uint16_t  RESERVED19;
 } TIM1_TypeDef;
 
+#define TIM1_BASE       0x40012C00UL
+
+#define TIM1 ((TIM1_TypeDef*)TIM1_BASE)
+
 #define USART2_BASE     0x40004400UL
 
 #define USART2 ((USART2_Type*)USART2_BASE)
