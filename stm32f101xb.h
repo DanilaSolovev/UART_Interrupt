@@ -37,6 +37,7 @@ typedef enum
   DMA1_Channel7_IRQn          = 17,     /*!< DMA1 Channel 7 global Interrupt                      */
   ADC1_IRQn                   = 18,     /*!< ADC1 global Interrupt                                */
   EXTI9_5_IRQn                = 23,     /*!< External Line[9:5] Interrupts                        */
+  TIM1_UP_IRQn                = 25,     /*!< TIM1 Interrupt                                */
   TIM2_IRQn                   = 28,     /*!< TIM2 global Interrupt                                */
   TIM3_IRQn                   = 29,     /*!< TIM3 global Interrupt                                */
   TIM4_IRQn                   = 30,     /*!< TIM4 global Interrupt                                */

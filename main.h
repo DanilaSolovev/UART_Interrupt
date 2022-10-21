@@ -2,10 +2,12 @@
 #include "stdint.h"
 #include "stm32f101xb.h"
 #include "math.h"
+#define GPIO_PIN_5                 ((uint16_t)0x0020)  /* Pin 5 selected    */
 uint8_t data = 0;
 uint8_t res_mas[10] = {0};
 uint32_t i = 0;
 uint8_t UARTResive(uint8_t usartnum, uint32_t n);
+uint8_t a=0;
 void UARTcnf(uint8_t usartnum, uint32_t brate, uint8_t prer);
 void UARTSend(int8_t c);
 void UARTSendMAS(uint8_t usartnum, uint32_t n);
@@ -255,3 +257,21 @@ void USART1_IRQHandler (void)
         i++;
         if (i==10) {i=0;}
 }
+void TIM1_UP_IRQHandler (void)
+    {
+        if (TIM1->SR & 0x01)
+        {
+            if (a==0){
+                a=1;
+                GPIOA->BSRR = GPIOA->BSRR | GPIO_PIN_5;
+            }
+            else 
+            {
+                a=0;
+                GPIOA->BRR = GPIOA->BRR | GPIO_PIN_5;
+            }
+            
+        }
+            TIM1->SR = ~0x01;
+        
+    }
