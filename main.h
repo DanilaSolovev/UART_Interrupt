@@ -3,10 +3,13 @@
 #include "stm32f101xb.h"
 #include "math.h"
 #define GPIO_PIN_5                 ((uint16_t)0x0020)  /* Pin 5 selected    */
+#define Perv                       ((uint8_t)0x00)
+#define Posl                       ((uint8_t)0x00)
 uint8_t data = 0;
 uint8_t res_mas[10] = {0};
 uint32_t i = 0;
-uint8_t UARTResive(uint8_t usartnum, uint32_t n);
+void UARTResive_mas(uint8_t usartnum, uint32_t n);
+uint8_t UARTResive(uint8_t usartnum);
 uint8_t a=0;
 void UARTcnf(uint8_t usartnum, uint32_t brate, uint8_t prer);
 void UARTSend(int8_t c);
@@ -187,8 +190,8 @@ void UARTcnf(uint8_t usartnum, uint32_t brate, uint8_t prer)
         break;
     }
 }
-//Прием данных по USART
-uint8_t UARTResive(uint8_t usartnum, uint32_t n)
+//Прием массива по USART
+void UARTResive_mas(uint8_t usartnum, uint32_t n)
 {
     uint8_t Resive=0;
     volatile uint32_t a = 0;
@@ -222,7 +225,25 @@ uint8_t UARTResive(uint8_t usartnum, uint32_t n)
         a++;
         }
     }
-	return Resive;
+}
+uint8_t UARTResive(uint8_t usartnum)
+{
+    uint8_t Resive=0;
+    if (usartnum==1)
+    {
+        if (((USART1->SR)& (1<<5))!= 0x00)
+        {
+            Resive = USART1->DR;
+        }
+    }
+    if (usartnum==2)
+    {
+        if (((USART2->SR)& (1<<5))!= 0x00)
+        {
+            Resive = USART2->DR;
+        }
+    }
+    return Resive;
 }
 //Отправка символа по USART
 void UARTSend(int8_t c)
@@ -243,16 +264,16 @@ void UARTSendMAS(uint8_t usartnum, uint32_t n)
 //Обработчик прерываний USART
 void USART2_IRQHandler (void)
 {
-        data = 0x00;
-        data = UARTResive(2,10);
-        if (data !=0){res_mas[i]=data;}
+        static int8_t state=Perv;
+        if (state==Perv){TIM1->CR1 |= 0x01; state=Posl;} 
+        res_mas[i]=UARTResive(2);
         i++;
-        if (i==10) {i=0;}
+        if (i==10) {i=0;TIM1->CR1 &= ~0x01;}
 }
 void USART1_IRQHandler (void)
 {
         data = 0x00;
-        data = UARTResive(1,5);
+        data = UARTResive(1);
         if (data !=0){res_mas[i]=data;}
         i++;
         if (i==10) {i=0;}
@@ -272,6 +293,9 @@ void TIM1_UP_IRQHandler (void)
             }
             
         }
+            memset(res_mas,0,sizeof(res_mas));
+            i=0;
+            TIM1->CR1 &= ~0x01;
             TIM1->SR = ~0x01;
         
     }
